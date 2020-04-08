@@ -1,0 +1,50 @@
+<resources>
+    <string name="app_name">HWA 5.1 External</string>
+    <string name="txtSettings">Settings</string>
+    <string name="txtTheNote">Записная книжка</string>
+
+    <string name="inputNoteTxt">Примечание</string>
+    <string name="btnSaveNoteTxt">Сохранить</string>
+    <string name="fileSaved">данные сохранены</string>
+
+    <string name="txtOpenNote">Записная книжка</string>
+    <string name="txtOpenAddress">Меню адреса</string>
+    <string name="txtOpenCalendar">Меню календаря</string>
+    <string name="txtOpenSettings">Упс! Голяк =)</string>
+    <string name="txtOpenSettings2">Чё не понятного??? Сказанно! Голяк! =)</string>
+    <string name="txtAddress">Адресс</string>
+    <string name="txtCalendar">Календарь</string>
+
+    <string name="chooseStartDate">Дата-время старта задачи:</string>
+    <string name="chooseEndDate">Дата-время окончания задачи:</string>
+    <string name="txtError">Ошибка</string>
+    <string name="txtStart">старт:</string>
+    <string name="txtEnd">оканчание:</string>
+    <string name="btnOK">OK</string>
+
+    <string name="btnShowAddress">Показать адрес</string>
+    <string name="btn_del">Удалить</string>
+    <string name="add">Добавить</string>
+
+    <string-array name="countries">
+        <item>Россия</item>
+        <item>Украина</item>
+        <item>Белоруссия</item>
+    </string-array>
+    <string-array name="r_cities">
+        <item>Москва</item>
+        <item>Санкт-Петербург</item>
+        <item>Казань</item>
+    </string-array>
+    <string-array name="u_cities">
+        <item>Киев</item>
+        <item>Одесса</item>
+        <item>Харьков</item>
+    </string-array>
+    <string-array name="b_cities">
+        <item>Минск</item>
+        <item>Гомель</item>
+        <item>Торжок</item>
+    </string-array>
+
+</resources>
