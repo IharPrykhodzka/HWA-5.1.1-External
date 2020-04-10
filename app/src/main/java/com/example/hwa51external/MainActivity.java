@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_CODE_PERMISSION_WRITE_STORAGE);
 
         }
+
         initList();
     }
 
@@ -55,7 +56,6 @@ public class MainActivity extends AppCompatActivity {
             case REQUEST_CODE_PERMISSION_WRITE_STORAGE:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
-                    initList();
 
                 }
         }
@@ -65,35 +65,28 @@ public class MainActivity extends AppCompatActivity {
         final ListView listView = findViewById(R.id.list_view);
         final List<DataItems> dataItemsList = new ArrayList<>();
 
-        ArrayList<String> listTextFile = new ArrayList<>(stringList());
 
         int indexTitle = 0;
         int indexSubTitle = 1;
-        int indexImage = 2;
-        int indexChecked = 3;
+//        int indexImage = 2;
+        int image = R.mipmap.ic_launcher;
 
-        while (listTextFile.get(indexTitle) != null) {
+        while (true) {
 
-            dataItemsList.add(new DataItems(listTextFile.get(indexTitle), listTextFile.get(indexSubTitle),
-                    Integer.parseInt(listTextFile.get(indexImage)), Boolean.parseBoolean(listTextFile.get(indexChecked))));
 
-            indexTitle = indexTitle + 4;
-            indexSubTitle = indexSubTitle + 4;
-            indexImage = indexImage + 4;
-            indexChecked = indexChecked + 4;
+            if (stringList().size() < indexSubTitle) {
+                break;
+            } else {
 
+
+                dataItemsList.add(new DataItems(stringList().get(indexTitle), stringList().get(indexSubTitle),
+                        image, false));
+
+                indexTitle = indexTitle + 3;
+                indexSubTitle = indexSubTitle + 3;
+//                indexImage = indexImage + 3;
+            }
         }
-
-
-//        dataItemsList.add(new DataItems("Записная книжка", "Из задания № 2.2.1",
-//                R.drawable.note_background, false));
-//        dataItemsList.add(new DataItems("Календарь", "Из задания № 2.1.3",
-//                R.drawable.calendar_background, false));
-//        dataItemsList.add(new DataItems("Адресс", "Из задания № 2.1.2",
-//                R.drawable.address_background, false));
-//        dataItemsList.add(new DataItems("Настройки", "Из задания № 2.2.2",
-//                R.drawable.settings_background, false));
-
 
         final DataItemsAdapter dataItemsAdapter = new DataItemsAdapter(dataItemsList, this);
         listView.setAdapter(dataItemsAdapter);
@@ -103,10 +96,8 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
                 Object object = dataItemsList.get(position);
-                String massage = object.toString();
 
-
-                switch (massage) {
+                switch (object.toString()) {
                     case "Записная книжка":
                         Intent intentNotes = new Intent(MainActivity.this, NotesActivity.class);
                         startActivity(intentNotes);
@@ -131,9 +122,8 @@ public class MainActivity extends AppCompatActivity {
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
 
                 Object object = dataItemsList.get(position);
-                String massage = object.toString();
 
-                Toast.makeText(MainActivity.this, massage, Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this, object.toString(), Toast.LENGTH_LONG).show();
 
                 return false;
             }
@@ -142,9 +132,8 @@ public class MainActivity extends AppCompatActivity {
 
     private String loadText() {
         StringBuilder result = null;
+        Context context = this;
         if (isExternalStorageWritable()) {
-
-            Context context = this;
 
             File textFile = new File(context.getExternalFilesDir(null), FILE_NAME);
             result = new StringBuilder();
@@ -166,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<String> stringList() {
 
         String str = loadText();
-
+        str = str.trim();
         String[] arr = str.split(",");
 
         return new ArrayList<>(Arrays.asList(arr));
