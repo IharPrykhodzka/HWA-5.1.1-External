@@ -16,6 +16,8 @@ import java.util.List;
 public class DataItemsAdapter extends BaseAdapter {
     private List<DataItems> dataItemsList;
     private LayoutInflater inflater;
+    public int pos;
+
     public DataItemsAdapter(List<DataItems> dataItems, Context context) {
         this.dataItemsList = dataItems;
         this.inflater = LayoutInflater.from(context);
@@ -57,6 +59,7 @@ public class DataItemsAdapter extends BaseAdapter {
                 @Override
                 public void onClick(View view) {
                     btnDel(position);
+                    pos = position;
                 }
             });
 

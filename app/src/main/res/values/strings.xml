@@ -25,6 +25,9 @@
     <string name="btnShowAddress">Показать адрес</string>
     <string name="btn_del">Удалить</string>
     <string name="add">Добавить</string>
+    <string name="editTitel">Заголовок</string>
+    <string name="editSubTitle">Текст</string>
+    <string name="newPointMessage">Что-то не то! Попробуйте ещё раз</string>
 
     <string-array name="countries">
         <item>Россия</item>

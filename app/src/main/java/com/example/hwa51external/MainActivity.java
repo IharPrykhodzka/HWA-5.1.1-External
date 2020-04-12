@@ -1,12 +1,16 @@
 package com.example.hwa51external;
-import android.content.Context;
+
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -16,33 +20,63 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class MainActivity extends AppCompatActivity {
+
     private String FILE_NAME = "text.txt";
+    private static final int REQUEST_CODE_PERMISSION_WRITE_STORAGE = 10;
+    private String delPos = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        int permissionStatus = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (permissionStatus == PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE_PERMISSION_WRITE_STORAGE);
+        }
 
         Toolbar myToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(myToolbar);
 
         createText();
         initList();
+        newPoint();
+//        deletePoint();
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_CODE_PERMISSION_WRITE_STORAGE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                }
+        }
+    }
+
     private void initList() {
         final ListView listView = findViewById(R.id.list_view);
         final List<DataItems> dataItemsList = new ArrayList<>();
         int image = R.mipmap.ic_launcher;
 
         ArrayList<String> strings = stringList();
-        for (int i = 0; i < strings.size(); i+=2) {
+        for (int i = 0; i < strings.size(); i += 2) {
             dataItemsList.add(new DataItems(strings.get(i), strings.get(i + 1), image, false));
         }
         final DataItemsAdapter dataItemsAdapter = new DataItemsAdapter(dataItemsList, this);
         listView.setAdapter(dataItemsAdapter);
+
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -75,13 +109,16 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
+
+        delPos = dataItemsList.get(dataItemsAdapter.pos).toString();
     }
+
 
     private void createText() {
         File textFile = new File(getExternalFilesDir(null), FILE_NAME);
         try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(textFile))) {
             bufferedWriter.write("Записная книжка,Из задания № 2.2.1,Календарь,Из задания № 2.1.3," +
-                                        "Адресс,Из задания № 2.1.2,Настройки,Из задания № 2.2.2");
+                    "Адресс,Из задания № 2.1.2,Настройки,Из задания № 2.2.2");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -89,9 +126,8 @@ public class MainActivity extends AppCompatActivity {
 
     private String loadText() {
         StringBuilder result = null;
-        Context context = this;
         if (isExternalStorageWritable()) {
-            File textFile = new File(context.getExternalFilesDir(null), FILE_NAME);
+            File textFile = new File(getExternalFilesDir(null), FILE_NAME);
             result = new StringBuilder();
             try (BufferedReader bufferedReader = new BufferedReader(new FileReader(textFile))) {
                 String line;
@@ -106,6 +142,57 @@ public class MainActivity extends AppCompatActivity {
         assert result != null;
         return result.toString();
     }
+
+
+    private void newPoint() {
+        FloatingActionButton fab = findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (isExternalStorageWritable()) {
+                    File textFile = new File(getExternalFilesDir(null), FILE_NAME);
+                    try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(textFile, true))) {
+                        bufferedWriter.append(",Автор,Приходько Игорь");
+                        initList();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+    }
+
+//    private void deletePoint() {
+//
+//        Button button = findViewById(R.id.btn_delete);
+//        button.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                if (delPos != null) {
+//                    ArrayList strings = stringList();
+//                    strings.remove(Integer.parseInt(delPos));
+//                    strings.remove(Integer.parseInt(delPos + 1));
+//                    ArrayList<Object> arrayList = new ArrayList<>();
+//
+//                    if (isExternalStorageWritable()) {
+//                        File textFile = new File(getExternalFilesDir(null), FILE_NAME);
+//                        try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(textFile))) {
+//                            for (int i = 0; i < strings.size(); i ++) {
+//                                arrayList.add(strings.get(i) + ",");
+//                            }
+//                            bufferedWriter.write(arrayList.toString());
+//                            initList();
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//
+//                }
+//            }
+//        });
+//
+//    }
+
 
     private ArrayList<String> stringList() {
         String str = loadText();
