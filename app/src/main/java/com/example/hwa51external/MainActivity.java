@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -29,30 +28,25 @@ import androidx.core.content.ContextCompat;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-public class MainActivity extends AppCompatActivity {
+
+public class MainActivity extends AppCompatActivity implements DeleteListener {
 
     private String FILE_NAME = "text.txt";
     private static final int REQUEST_CODE_PERMISSION_WRITE_STORAGE = 10;
-    private String delPos = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         int permissionStatus = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        if (permissionStatus == PackageManager.PERMISSION_GRANTED) {
-
+        if (permissionStatus != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE_PERMISSION_WRITE_STORAGE);
         }
-
         Toolbar myToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(myToolbar);
-
         createText();
         initList();
         newPoint();
-//        deletePoint();
     }
 
     @Override
@@ -60,7 +54,6 @@ public class MainActivity extends AppCompatActivity {
         switch (requestCode) {
             case REQUEST_CODE_PERMISSION_WRITE_STORAGE:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
                 }
         }
     }
@@ -71,12 +64,14 @@ public class MainActivity extends AppCompatActivity {
         int image = R.mipmap.ic_launcher;
 
         ArrayList<String> strings = stringList();
-        for (int i = 0; i < strings.size(); i += 2) {
-            dataItemsList.add(new DataItems(strings.get(i), strings.get(i + 1), image, false));
+        if (strings.size() > 1) {
+            for (int i = 0; i < strings.size(); i += 2) {
+                dataItemsList.add(new DataItems(strings.get(i), strings.get(i + 1), image, false));
+            }
         }
-        final DataItemsAdapter dataItemsAdapter = new DataItemsAdapter(dataItemsList, this);
-        listView.setAdapter(dataItemsAdapter);
 
+        final DataItemsAdapter dataItemsAdapter = new DataItemsAdapter(dataItemsList, this, this);
+        listView.setAdapter(dataItemsAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -109,16 +104,13 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
-
-        delPos = dataItemsList.get(dataItemsAdapter.pos).toString();
     }
-
 
     private void createText() {
         File textFile = new File(getExternalFilesDir(null), FILE_NAME);
         try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(textFile))) {
             bufferedWriter.write("Записная книжка,Из задания № 2.2.1,Календарь,Из задания № 2.1.3," +
-                    "Адресс,Из задания № 2.1.2,Настройки,Из задания № 2.2.2");
+                    "Адресс,Из задания № 2.1.2,Настройки,Из задания № 2.2.2,");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -143,7 +135,6 @@ public class MainActivity extends AppCompatActivity {
         return result.toString();
     }
 
-
     private void newPoint() {
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -152,47 +143,15 @@ public class MainActivity extends AppCompatActivity {
                 if (isExternalStorageWritable()) {
                     File textFile = new File(getExternalFilesDir(null), FILE_NAME);
                     try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(textFile, true))) {
-                        bufferedWriter.append(",Автор,Приходько Игорь");
-                        initList();
+                        bufferedWriter.append("Автор,Приходько Игорь,");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
+                    initList();
                 }
             }
         });
     }
-
-//    private void deletePoint() {
-//
-//        Button button = findViewById(R.id.btn_delete);
-//        button.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                if (delPos != null) {
-//                    ArrayList strings = stringList();
-//                    strings.remove(Integer.parseInt(delPos));
-//                    strings.remove(Integer.parseInt(delPos + 1));
-//                    ArrayList<Object> arrayList = new ArrayList<>();
-//
-//                    if (isExternalStorageWritable()) {
-//                        File textFile = new File(getExternalFilesDir(null), FILE_NAME);
-//                        try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(textFile))) {
-//                            for (int i = 0; i < strings.size(); i ++) {
-//                                arrayList.add(strings.get(i) + ",");
-//                            }
-//                            bufferedWriter.write(arrayList.toString());
-//                            initList();
-//                        } catch (IOException e) {
-//                            e.printStackTrace();
-//                        }
-//                    }
-//
-//                }
-//            }
-//        });
-//
-//    }
-
 
     private ArrayList<String> stringList() {
         String str = loadText();
@@ -204,5 +163,23 @@ public class MainActivity extends AppCompatActivity {
     public boolean isExternalStorageWritable() {
         String state = Environment.getExternalStorageState();
         return Environment.MEDIA_MOUNTED.equals(state);
+    }
+
+    @Override
+    public void onDelete(int position) {
+        ArrayList strings = stringList();
+        strings.remove(position);
+        strings.remove(position);
+        if (isExternalStorageWritable()) {
+            File textFile = new File(getExternalFilesDir(null), FILE_NAME);
+            try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(textFile))) {
+                for (int i = 0; i < strings.size(); i++) {
+                    bufferedWriter.write(strings.get(i) + ",");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            initList();
+        }
     }
 }
